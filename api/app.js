@@ -4,6 +4,8 @@ import postroute from "./routes/postroute.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import testrouter from "./routes/textroute.js";
+import userrouter from "./routes/userroute.js";
+
 const app = express();
 
 
@@ -14,6 +16,8 @@ app.use(cookieParser());
 app.use("/api/test",testrouter)
 app.use("/api/auth",authroute);
 app.use("/api/post", postroute)
+app.use("/api/user", userrouter)
+
 app.listen(8000, () => {
     console.log("server is running" );
 });
