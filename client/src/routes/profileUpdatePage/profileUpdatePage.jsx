@@ -1,15 +1,44 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import "./profileUpdatePage.scss";
 import { AuthContext } from "../../context/Authcontext";
+import apiRequest from "../../lib/apiRequest";
+import { useNavigate } from "react-router-dom";
+import UploadWidget from "../../components/uploadWidget/uploadWidget";
 
 function ProfileUpdatePage() {
 
   const {updateUser, currentUser} = useContext(AuthContext)
 
+  const [error,seterror] = useState("")
+  const [avatar,setavatar] = useState(currentUser.avatar)
+
+  
+  const navigate = useNavigate()
+
+
+    const handleSubmit = async (e) => {
+      e.preventDefault()
+
+      const formdata = new FormData(e.target);
+      console.log(currentUser)
+
+      const {username, email , password} = Object.fromEntries(formdata);
+      try{
+        const res = await apiRequest.put(`/users/${currentUser.id}`,{username,email,password,avatar})
+
+        updateUser(res.data)
+        navigate("/profile")
+      }catch(err){
+        seterror(err.response.data.message);
+        console.log(err);
+      }
+
+    }
+
   return (
     <div className="profileUpdatePage">
       <div className="formContainer">
-        <form>
+        <form onSubmit={handleSubmit}>
           <h1>Update Profile</h1>
           <div className="item">
             <label htmlFor="username">Username</label>
@@ -34,10 +63,21 @@ function ProfileUpdatePage() {
             <input id="password" name="password" type="password" />
           </div>
           <button>Update</button>
+          {error && <span>{error}</span>}
         </form>
       </div>
       <div className="sideContainer">
-        <img src={currentUser.avatar || "/noavatar.jpg"} alt="" className="avatar" />
+        <img src={avatar || "/noavatar.jpg"} alt="" className="avatar" />
+        <UploadWidget uwConfig={
+         { cloudName:"dbw7ovkbr"
+          ,uploadPreset: "estate",
+          multiple: false,
+          maxImageFileSize:200000,
+          folder: "avatars"
+         }
+        }
+        setavatar = {setavatar}
+        />
       </div>
     </div>
   );

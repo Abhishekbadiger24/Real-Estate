@@ -16,7 +16,7 @@ app.use(cookieParser());
 app.use("/api/test",testrouter)
 app.use("/api/auth",authroute);
 app.use("/api/post", postroute)
-app.use("/api/user", userrouter)
+app.use("/api/users", userrouter)
 
 app.listen(8000, () => {
     console.log("server is running" );
