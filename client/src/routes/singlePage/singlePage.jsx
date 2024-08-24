@@ -2,33 +2,56 @@ import "./singlePage.scss";
 import Slider from "../../components/slider/Slider";
 import Map from "../../components/map/Map";
 import { singlePostData, userData } from "../../lib/dummydata";
-import { useLoaderData } from "react-router-dom";
+import { useLoaderData, useNavigate } from "react-router-dom";
+import DOMPurify from "dompurify"
+import { useContext, useState } from "react";
+import { AuthContext } from "../../context/Authcontext";
+import apiRequest from "../../lib/apiRequest.js";
 
 function SinglePage() {
 
-  const post = useLoaderData()
-  console.log(post);
+  const details = useLoaderData()
+  const [saved, setsaved] = useState(details.isSaved )
+  const {currentUser} = useContext(AuthContext)
+  const navigate = useNavigate()
+
+  const handleClick = async () => {
+    setsaved((prev) => !prev)
+    
+    if(!currentUser){
+      navigate("/login")
+    }
+    try{
+      
+      await apiRequest.post("/users/save", {postId : details.id})
+    }catch(err) {
+      console.log(err)
+      setsaved((prev) => !prev)
+    }
+  }
+ 
+  console.log(details);
   return (
     <div className="singlePage">
       <div className="details">
         <div className="wrapper">
-          <Slider images={singlePostData.images} />
+          <Slider images={details.images} />
           <div className="info">
             <div className="top">
               <div className="post">
-                <h1>{singlePostData.title}</h1>
+                <h1>{details.title}</h1>
                 <div className="address">
                   <img src="/pin.png" alt="" />
-                  <span>{singlePostData.address}</span>
+                  <span>{details.address}</span>
                 </div>
-                <div className="price">$ {singlePostData.price}</div>
+                <div className="price">$ {details.price}</div>
               </div>
               <div className="user">
-                <img src={userData.img} alt="" />
-                <span>{userData.name}</span>
+                <img src={details.user.avatar} alt="" />
+                <span>{details.user.username}</span>
               </div>
             </div>
-            <div className="bottom">{singlePostData.description}</div>
+            <div className="bottom" dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(details.postDetail.desc)}}></div>
           </div>
         </div>
       </div>
@@ -40,21 +63,21 @@ function SinglePage() {
               <img src="/utility.png" alt="" />
               <div className="featureText">
                 <span>Utilities</span>
-                <p>Renter is responsible</p>
+                <p>{details.postDetail.utilities}</p>
               </div>
             </div>
             <div className="feature">
               <img src="/pet.png" alt="" />
               <div className="featureText">
                 <span>Pet Policy</span>
-                <p>Pets Allowed</p>
+                <p>{details.postDetail.pet}</p>
               </div>
             </div>
             <div className="feature">
               <img src="/fee.png" alt="" />
               <div className="featureText">
                 <span>Property Fees</span>
-                <p>Must have 3x the rent in total household income</p>
+                <p>{details.postDetail.income}</p>
               </div>
             </div>
           </div>
@@ -62,15 +85,15 @@ function SinglePage() {
           <div className="sizes">
             <div className="size">
               <img src="/size.png" alt="" />
-              <span>80 sqft</span>
+              <span>{details.postDetail.size} sqft</span>
             </div>
             <div className="size">
               <img src="/bed.png" alt="" />
-              <span>2 beds</span>
+              <span>{details.bedroom} beds</span>
             </div>
             <div className="size">
               <img src="/bath.png" alt="" />
-              <span>1 bathroom</span>
+              <span>{details.bathroom} bathroom</span>
             </div>
           </div>
           <p className="title">Nearby Places</p>
@@ -79,36 +102,38 @@ function SinglePage() {
               <img src="/school.png" alt="" />
               <div className="featureText">
                 <span>School</span>
-                <p>250m away</p>
+                <p>{details.postDetail.school}m away</p>
               </div>
             </div>
             <div className="feature">
               <img src="/pet.png" alt="" />
               <div className="featureText">
                 <span>Bus Stop</span>
-                <p>100m away</p>
+                <p>{details.postDetail.bus}m away</p>
               </div>
             </div>
             <div className="feature">
               <img src="/fee.png" alt="" />
               <div className="featureText">
                 <span>Restaurant</span>
-                <p>200m away</p>
+                <p>{details.postDetail.restaurant}m away</p>
               </div>
             </div>
           </div>
           <p className="title">Location</p>
           <div className="mapContainer">
-            <Map items={[singlePostData]} />
+            <Map items={[details]} />
           </div>
           <div className="buttons">
             <button>
-              <img src="/chat.png" alt="" />
+              <img src="/chat.png" alt="" />e
               Send a Message
             </button>
-            <button>
+            <button onClick={handleClick} style={{
+              backgroundColor: saved ? "white" : "#fece51" ,
+            }}>
               <img src="/save.png" alt="" />
-              Save the Place
+              {saved ?"saved the place": "please save it"}
             </button>
           </div>
         </div>

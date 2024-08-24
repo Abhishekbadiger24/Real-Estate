@@ -22,6 +22,10 @@ model User {
   avatar String?
   createdBy DateTime @default(now())
   post Post[]
+  savedPosts SavedPost[]
+  chats Chat[] @relation(fields: [chatIds], references: [id])
+  chatIds String[] @db.ObjectId
+
 }
 
 model Post {
@@ -41,6 +45,7 @@ model Post {
   user User @relation( fields: [userId], references: [id])
   userId String @db.ObjectId
   postDetail PostDetail?
+  savedPosts SavedPost[]
 }
 
 enum Type{
@@ -69,4 +74,35 @@ model PostDetail {
   post Post @relation(fields: [postId], references: [id])
   postId String @db.ObjectId @unique
 
+}
+model SavedPost {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  post Post @relation(fields: [postId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+  postId String @db.ObjectId 
+  userId String @db.ObjectId 
+  createdAt DateTime @default(now())
+
+  @@unique([userId, postId])
+}
+
+
+model Chat {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  users User[] @relation(fields: [userIds], references: [id])
+  userIds String[] @db.ObjectId
+  createdAt DateTime @default(now())
+  seenBy String[] @db.ObjectId
+  messages Message[]
+  lastMessage String?
+
+}
+
+model Message {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  text String
+  userId String
+  chat Chat @relation(fields: [chatId], references: [id])
+  chatId String @db.ObjectId
+  createdAt DateTime @default(now())
 }

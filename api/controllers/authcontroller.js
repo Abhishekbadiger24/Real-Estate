@@ -8,13 +8,13 @@ export const handleRegister = async (req, res) => {
 
    try{
     
-    const hashedPAssword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await prisma.user.create({
         data: {
             username,
             email,
-            password: hashedPAssword
+            password: hashedPassword
         }
     })
     console.log(newUser);
@@ -31,9 +31,8 @@ export const handleRegister = async (req, res) => {
 
 export const handleLogin = async (req, res) => {
     const {username,  password} = req.body;
-    console.log(username)
     try{
-
+        
         //check if user exist
         const user = await prisma.user.findUnique({
             where: { username: username },
@@ -42,18 +41,19 @@ export const handleLogin = async (req, res) => {
         if(!user) return res.status(401).json({ message: "Invalid crendendials!" })
 
     //check if the password is correct 
-
-        const isPasswordValid = await bcrypt.compare(password, user.password)
-        if(!isPasswordValid) return res.status(401).json({ message: "Invalid Credencials!" })
-
-    //generate the cookie token and send to  the user
+    
+    const isPasswordValid = await bcrypt.compare(password, user.password)
+    if(!isPasswordValid) return res.status(401).json({ message: "Invalid Credencials!" })
+        
+        //generate the cookie token and send to  the user
         const age = 1000 * 60 * 60 * 24 * 7;
-
+        
         const token = jwt.sign({
             id: user.id,
             isAdmin:true
         },process.env.JWT_SECRET, { expiresIn:age })
-
+        
+        // console.log(token)
         
         const {password: userPassword, ...userInfo} = user
 

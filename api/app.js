@@ -5,6 +5,8 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import testrouter from "./routes/textroute.js";
 import userrouter from "./routes/userroute.js";
+import chatrouter from "./routes/chatroute.js";
+import messagerouter from "./routes/messageroute.js";
 
 const app = express();
 
@@ -17,6 +19,9 @@ app.use("/api/test",testrouter)
 app.use("/api/auth",authroute);
 app.use("/api/post", postroute)
 app.use("/api/users", userrouter)
+app.use("/api/chats", chatrouter)
+app.use("/api/messages", messagerouter)
+
 
 app.listen(8000, () => {
     console.log("server is running" );

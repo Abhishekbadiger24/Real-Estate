@@ -1,14 +1,20 @@
-import {  Link, useNavigate } from "react-router-dom";
+import {  Link, useLoaderData, useNavigate } from "react-router-dom";
 
 import Chat from "../../components/chat/Chat";
 import List from "../../components/list/List";
-import apiRequest from "../../lib/apiRequest";
+import apiRequest from "../../lib/apiRequest.js";
 import "./profilePage.scss";
 import { useContext } from "react";
 import { AuthContext } from "../../context/Authcontext";
 
+
 function ProfilePage() {
 
+  const {chats,posts} = useLoaderData();
+
+
+
+  
   const {updateUser, currentUser} = useContext(AuthContext)
 
   const navigate = useNavigate()
@@ -42,7 +48,7 @@ function ProfilePage() {
             <span>
               Avatar:
               <img
-                src={currentUser || "noavatar.jpg"}
+                src={currentUser.avatar || "noavatar.jpg"}
                 alt=""
               />
             </span>
@@ -61,16 +67,25 @@ function ProfilePage() {
             </Link>
             
           </div>
-          <List />
+
+          {
+            <List items={posts.data.userPosts} />
+          }
           <div className="title">
             <h1>Saved List</h1>
           </div>
-          <List />
+
+
+          {
+            <List items={posts.data.savedPost} />
+          }
         </div>
       </div>
       <div className="chatContainer">
         <div className="wrapper">
-          <Chat/>
+
+          
+           <Chat chats={chats.data}/>
         </div>
       </div>
     </div>
